@@ -1,109 +1,261 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Mini Cricket Scorer</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KFC Mini Cricket Elite</title>
     <style>
-        body { font-family: sans-serif; background: #f0f0f0; margin: 0; padding: 10px; text-align: center; }
-        .scoreboard { background: #333; color: white; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
-        .score { font-size: 3em; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        button { 
-            padding: 20px 10px; font-size: 1.5em; border: none; border-radius: 8px; 
-            background: white; box-shadow: 0 4px #ccc; cursor: pointer;
-        }
-        button:active { transform: translateY(4px); box-shadow: none; }
-        .btn-run { background: #e1f5fe; }
-        .btn-wicket { background: #ffcdd2; grid-column: span 2; color: #b71c1c; font-weight: bold; }
-        .btn-extra { background: #fff9c4; }
-        .stats { margin-top: 15px; background: white; padding: 10px; border-radius: 10px; text-align: left; }
+        :root { --kfc-red: #e4002b; --dark: #1a1a1a; --gold: #ffc107; --bg: #f4f4f9; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
+        .hidden { display: none !important; }
+        header { background: var(--kfc-red); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .container { padding: 12px; max-width: 600px; margin: auto; }
+        .card { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        
+        /* Layout & Input */
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .team-setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        /* Scoreboard */
+        .scoreboard { background: var(--dark); color: white; padding: 20px; border-radius: 15px; text-align: center; }
+        .big-score { font-size: 3.5rem; color: var(--gold); margin: 5px 0; font-weight: 800; }
+        .live-roles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 15px; }
+        .role-card { background: #333; padding: 8px; border-radius: 8px; font-size: 0.8rem; border-top: 3px solid #666; }
+        .role-card.active { border-top-color: var(--gold); background: #444; }
+        .role-name { display: block; font-weight: bold; font-size: 0.8rem; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+
+        /* Buttons */
+        .scoring-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        button { border: none; border-radius: 10px; padding: 15px 5px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .btn-run { background: white; box-shadow: 0 4px #ccc; }
+        .btn-wicket { background: #ffcdd2; color: #b71c1c; grid-column: span 2; box-shadow: 0 4px #e57373; }
+        .btn-extra { background: #fff9c4; box-shadow: 0 4px #d4cc8a; }
+        .btn-undo { background: #555; color: white; grid-column: span 4; margin-top: 10px; }
+        .btn-main { background: var(--kfc-red); color: white; width: 100%; padding: 15px; margin-top: 10px; }
+
+        /* Scorecard */
+        .stats-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; margin-top: 10px; }
+        .stats-table th, .stats-table td { border: 1px solid #ddd; padding: 4px; text-align: center; }
+        .summary-box { background: var(--gold); padding: 10px; margin-top: 5px; font-weight: bold; }
+        
+        .history-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 
-    <div class="scoreboard">
-        <div id="team-names">Home vs Away</div>
-        <div class="score" id="main-score">0 - 0</div>
-        <div id="over-info">Over: 0.0</div>
+<header>KFC MINI CRICKET ELITE</header>
+
+<div class="container">
+    <div id="view-home">
+        <div class="card">
+            <h2>Coach Dashboard</h2>
+            <button class="btn-main" onclick="showView('view-setup')">New Match</button>
+            <button class="btn-main" style="background:#444" onclick="loadHistory()">Match History</button>
+        </div>
+        <div id="history-preview"></div>
     </div>
 
-    <div class="stats">
-        <div><strong>Striker:</strong> <span id="s-name">Player 1</span> (<span id="s-balls">0</span>b)</div>
-        <div><strong>Non-Striker:</strong> <span id="ns-name">Player 2</span> (<span id="ns-balls">0</span>b)</div>
+    <div id="view-setup" class="hidden">
+        <div class="card">
+            <h2>Match Setup</h2>
+            <input type="text" id="setup-venue" placeholder="Venue Name">
+            <div class="team-setup-grid">
+                <div>
+                    <input type="text" id="team-a-name" placeholder="Team A Name">
+                    <div id="team-a-players"></div>
+                </div>
+                <div>
+                    <input type="text" id="team-b-name" placeholder="Team B Name">
+                    <div id="team-b-players"></div>
+                </div>
+            </div>
+            <button class="btn-main" onclick="initMatch()">START MATCH</button>
+            <button class="btn-main" style="background:#666" onclick="showView('view-home')">Back</button>
+        </div>
     </div>
 
-    <br>
+    <div id="view-scoring" class="hidden">
+        <div class="scoreboard">
+            <div id="disp-matchup">Teams</div>
+            <div class="big-score" id="disp-score">0 - 0</div>
+            <div id="disp-overs">Over: 0.0 / 8</div>
+            <div id="disp-target" class="hidden" style="background:var(--kfc-red); padding:4px 12px; border-radius:20px; font-size:0.8rem;">TARGET: 0</div>
 
-    <div class="grid">
-        <button class="btn-run" onclick="addRun(0)">0</button>
-        <button class="btn-run" onclick="addRun(1)">1</button>
-        <button class="btn-run" onclick="addRun(2)">2</button>
-        <button class="btn-run" onclick="addRun(3)">3</button>
-        <button class="btn-run" onclick="addRun(4)">4</button>
-        <button class="btn-run" onclick="addRun(6)">6</button>
-        <button class="btn-extra" onclick="addExtra('WD')">WD</button>
-        <button class="btn-extra" onclick="addExtra('NB')">NB</button>
-        <button class="btn-wicket" onclick="addWicket()">WICKET (-2)</button>
+            <div class="live-roles">
+                <div class="role-card active" id="card-s">
+                    <span>Striker</span><span class="role-name" id="name-s">---</span><span id="balls-s">0/6</span>
+                </div>
+                <div class="role-card" id="card-ns">
+                    <span>Non-Striker</span><span class="role-name" id="name-ns">---</span><span id="balls-ns">0/6</span>
+                </div>
+                <div class="role-card" id="card-bwl">
+                    <span>Bowler</span><span class="role-name" id="name-bwl">---</span><span id="balls-bwl">0/6</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="scoring-grid no-print">
+            <button class="btn-run" onclick="handleBall(0)">0</button>
+            <button class="btn-run" onclick="handleBall(1)">1</button>
+            <button class="btn-run" onclick="handleBall(2)">2</button>
+            <button class="btn-run" onclick="handleBall(3)">3</button>
+            <button class="btn-run" onclick="handleBall(4)">4</button>
+            <button class="btn-run" onclick="handleBall(6)">6</button>
+            <button class="btn-extra" onclick="handleExtra('WD')">WD</button>
+            <button class="btn-extra" onclick="handleExtra('NB')">NB</button>
+            <button class="btn-wicket" onclick="handleWicket()">WICKET (-2)</button>
+            <button class="btn-undo" onclick="undoLastAction()">UNDO LAST BALL</button>
+        </div>
     </div>
 
-    <script>
-        // Simple logic for offline storage
-        let score = 0;
-        let wickets = 0;
-        let ballsInOver = 0;
-        let totalOvers = 0;
-        let strikerBalls = 0;
+    <div id="view-scorecard" class="hidden">
+        <div class="card" id="scorecard-container"></div>
+        <button class="btn-main no-print" onclick="syncData()">SYNC TO CLOUD</button>
+        <button class="btn-main no-print" style="background:#666" onclick="location.reload()">HOME</button>
+    </div>
 
-        function updateDisplay() {
-            document.getElementById('main-score').innerText = `${score} - ${wickets}`;
-            document.getElementById('over-info').innerText = `Over: ${totalOvers}.${ballsInOver}`;
-            document.getElementById('s-balls').innerText = strikerBalls;
-            
-            if (strikerBalls >= 6) {
-                alert("Batter has faced 6 balls! Time to rotate.");
-                strikerBalls = 0; 
-                // Logic to bring in next batter would go here
+    <div id="view-history" class="hidden">
+        <div class="card">
+            <h2>Match History</h2>
+            <div id="history-list"></div>
+            <button class="btn-main" style="background:#666" onclick="showView('view-home')">Back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_URL = 'https://script.google.com/macros/s/AKfycbw1wz51YxHeo1cEmht42_d8MmtzRCqZ8Y_lrPpaKIgNrgWdXNBHJ43KK47emrUtEYl0/exec';
+    
+    let match = {};
+    let undoStack = [];
+
+    window.onload = () => {
+        const aCont = document.getElementById('team-a-players');
+        const bCont = document.getElementById('team-b-players');
+        for(let i=1; i<=8; i++) {
+            aCont.innerHTML += `<input type="text" class="p-a" placeholder="Batter ${i}">`;
+            bCont.innerHTML += `<input type="text" class="p-b" placeholder="Bowler ${i}">`;
+        }
+    };
+
+    function initMatch() {
+        const namesA = Array.from(document.querySelectorAll('.p-a')).map((i, idx) => i.value || "Player " + (idx+1));
+        const namesB = Array.from(document.querySelectorAll('.p-b')).map((i, idx) => i.value || "Player " + (idx+1));
+        
+        match = {
+            id: Date.now(), venue: document.getElementById('setup-venue').value || "TBC",
+            home: document.getElementById('team-a-name').value || "Home",
+            away: document.getElementById('team-b-name').value || "Away",
+            battingTeam: namesA.map(n => ({ name: n, ballsFaced: 0, runs: 0, balls: [] })),
+            bowlingTeam: namesB.map(n => ({ name: n, ballsBowled: 0, balls: [] })),
+            innings: 1, runs: 0, wickets: 0, overs: 0, balls: 0, strikerIdx: 0, nsIdx: 1, bowlerIdx: 0, nextBatIdx: 2,
+            inn1: null, target: null
+        };
+        showView('view-scoring');
+        updateUI();
+    }
+
+    function handleBall(r) { saveState(); record(r, false, r); if(r%2 !== 0) swap(); check(); updateUI(); }
+    function handleWicket() { saveState(); record(-2, true, 'W'); check(); updateUI(); }
+    function handleExtra(t) { saveState(); record(1, false, t); check(); updateUI(); }
+
+    function record(r, isW, code) {
+        match.runs += r; if(isW) match.wickets++;
+        match.battingTeam[match.strikerIdx].ballsFaced++;
+        match.battingTeam[match.strikerIdx].balls.push(code);
+        match.bowlingTeam[match.bowlerIdx].ballsBowled++;
+        match.bowlingTeam[match.bowlerIdx].balls.push(code);
+        match.balls++;
+    }
+
+    function saveState() { undoStack.push(JSON.parse(JSON.stringify(match))); }
+    function undoLastAction() { if(undoStack.length > 0) { match = undoStack.pop(); updateUI(); } else { alert("Nothing to undo!"); } }
+    function swap() { [match.strikerIdx, match.nsIdx] = [match.nsIdx, match.strikerIdx]; }
+
+    function check() {
+        if(match.battingTeam[match.strikerIdx].ballsFaced >= 6) {
+            alert(match.battingTeam[match.strikerIdx].name + " is done.");
+            if(match.nextBatIdx < 8) { match.strikerIdx = match.nextBatIdx; match.nextBatIdx++; }
+        }
+        if(match.balls >= 6) {
+            match.balls = 0; match.overs++; swap();
+            if(match.overs < 8) match.bowlerIdx++;
+        }
+        if(match.overs >= 8) {
+            if(match.innings === 1) {
+                match.inn1 = { score: match.runs, wkts: match.wickets, bat: JSON.parse(JSON.stringify(match.battingTeam)), bowl: JSON.parse(JSON.stringify(match.bowlingTeam)) };
+                match.target = match.runs + 1;
+                alert("Target: " + match.target);
+                startInnings2();
+            } else { finish(); }
+        }
+    }
+
+    function startInnings2() {
+        match.innings = 2; match.runs = 0; match.wickets = 0; match.overs = 0; match.balls = 0;
+        match.strikerIdx = 0; match.nsIdx = 1; match.bowlerIdx = 0; match.nextBatIdx = 2;
+        let temp = match.battingTeam; match.battingTeam = match.bowlingTeam; match.bowlingTeam = temp;
+        match.battingTeam.forEach(p => { p.ballsFaced = 0; p.balls = []; p.runs = 0; });
+        match.bowlingTeam.forEach(p => { p.ballsBowled = 0; p.balls = []; });
+    }
+
+    function finish() {
+        match.inn2 = { score: match.runs, wkts: match.wickets, bat: JSON.parse(JSON.stringify(match.battingTeam)), bowl: JSON.parse(JSON.stringify(match.bowlingTeam)) };
+        showView('view-scorecard');
+        renderScorecard();
+        let h = JSON.parse(localStorage.getItem('cricket_history') || '[]');
+        h.unshift(match);
+        localStorage.setItem('cricket_history', JSON.stringify(h));
+    }
+
+    function renderScorecard() {
+        const d = new Date().toISOString().split('T')[0];
+        let h = `<div style="font-size:0.8rem">Date: ${d} | Venue: ${match.venue}</div>`;
+        h += `<h2>${match.home} vs ${match.away}</h2>`;
+        h += `<h3>${match.home} Innings</h3>` + table(match.inn1.bat) + `<div class="summary-box">Score: ${match.inn1.score} - (${match.inn1.wkts}*2) = ${match.inn1.score-(match.inn1.wkts*2)}</div>`;
+        h += `<h3>${match.away} Innings</h3>` + table(match.inn2.bat) + `<div class="summary-box">Score: ${match.inn2.score} - (${match.inn2.wkts}*2) = ${match.inn2.score-(match.inn2.wkts*2)}</div>`;
+        document.getElementById('scorecard-container').innerHTML = h;
+    }
+
+    function table(data) {
+        let t = `<table class="stats-table"><tr><th>Name</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>R</th><th>W</th></tr>`;
+        data.forEach(p => {
+            let r=0, w=0, cells="";
+            for(let i=0; i<8; i++){
+                let v = p.balls[i]||"-"; cells+=`<td>${v}</td>`;
+                if(v==='W') w++; else if(!isNaN(v)) r+=parseInt(v);
             }
-        }
+            t += `<tr><td>${p.name}</td>${cells}<td>${r}</td><td>${w}</td></tr>`;
+        });
+        return t + `</table>`;
+    }
 
-        function addRun(runs) {
-            score += runs;
-            recordBall(runs, false);
-            if (runs % 2 !== 0) swapBatters();
-            updateDisplay();
+    function loadHistory() {
+        const h = JSON.parse(localStorage.getItem('cricket_history') || '[]');
+        const list = document.getElementById('history-list');
+        if(!h || h.length === 0) {
+            list.innerHTML = "<p>No previous matches found. Start a new match to see history!</p>";
+        } else {
+            list.innerHTML = h.map(m => `<div class="history-item"><div><strong>${m.home} vs ${m.away}</strong><br><small>${m.venue}</small></div><span>${m.inn1.score-m.inn1.wkts*2} / ${m.inn2.score-m.inn2.wkts*2}</span></div>`).join('');
         }
+        showView('view-history');
+    }
 
-        function addWicket() {
-            score -= 2;
-            wickets += 1;
-            recordBall(0, true);
-            updateDisplay();
-        }
+    function updateUI() {
+        document.getElementById('disp-matchup').innerText = `${match.home} vs ${match.away}`;
+        document.getElementById('disp-score').innerText = `${match.runs} - ${match.wickets}`;
+        document.getElementById('disp-overs').innerText = `Over: ${match.overs}.${match.balls} / 8`;
+        document.getElementById('name-s').innerText = match.battingTeam[match.strikerIdx].name;
+        document.getElementById('balls-s').innerText = match.battingTeam[match.strikerIdx].ballsFaced + "/6";
+        document.getElementById('name-ns').innerText = match.battingTeam[match.nsIdx].name;
+        document.getElementById('balls-ns').innerText = match.battingTeam[match.nsIdx].ballsFaced + "/6";
+        document.getElementById('name-bwl').innerText = match.bowlingTeam[match.bowlerIdx].name;
+        document.getElementById('balls-bwl').innerText = match.bowlingTeam[match.bowlerIdx].ballsBowled + "/6";
+    }
 
-        function addExtra(type) {
-            score += 1; // Wide/NB adds 1
-            // In your rules, extras still count as a ball in the over
-            recordBall(0, false); 
-            updateDisplay();
-        }
-
-        function recordBall(runs, isWicket) {
-            ballsInOver++;
-            strikerBalls++;
-            if (ballsInOver > 5) {
-                ballsInOver = 0;
-                totalOvers++;
-                swapBatters(); // Swap at end of over
-            }
-        }
-
-        function swapBatters() {
-            let s = document.getElementById('s-name').innerText;
-            let ns = document.getElementById('ns-name').innerText;
-            document.getElementById('s-name').innerText = ns;
-            document.getElementById('ns-name').innerText = s;
-            // Note: In a full app, we'd swap the ball counts too
-        }
-    </script>
+    function showView(id) { document.querySelectorAll('.container > div').forEach(v => v.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    function syncData() { fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(match) }).then(() => alert("Synced!")); }
+</script>
 </body>
 </html>
