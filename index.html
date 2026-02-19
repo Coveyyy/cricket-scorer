@@ -5,41 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KFC Mini Cricket Elite</title>
     <style>
-        :root { --kfc-red: #e4002b; --dark: #1a1a1a; --gold: #ffc107; --bg: #f4f4f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--dark); }
+        :root { --kfc-red: #e4002b; --dark: #000000; --white: #ffffff; --bg: #f4f4f9; --run-green: #2e7d32; --wicket-red: #d32f2f; --extra-gold: #fbc02d; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; }
         .hidden { display: none !important; }
-        header { background: var(--kfc-red); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        header { background: var(--kfc-red); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; }
         .container { padding: 12px; max-width: 600px; margin: auto; }
         .card { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
         
-        /* Layout & Input */
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .team-setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        /* Scoreboard */
-        .scoreboard { background: var(--dark); color: white; padding: 20px; border-radius: 15px; text-align: center; }
-        .big-score { font-size: 3.5rem; color: var(--gold); margin: 5px 0; font-weight: 800; }
+        /* High Contrast Scoreboard for Sun Visibility */
+        .scoreboard { background: var(--dark); color: var(--white); padding: 20px; border-radius: 15px; text-align: center; border: 2px solid var(--white); }
+        .big-score { font-size: 4rem; color: var(--white); margin: 5px 0; font-weight: 900; }
         .live-roles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-top: 15px; }
-        .role-card { background: #333; padding: 8px; border-radius: 8px; font-size: 0.8rem; border-top: 3px solid #666; }
-        .role-card.active { border-top-color: var(--gold); background: #444; }
-        .role-name { display: block; font-weight: bold; font-size: 0.8rem; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        .role-card { background: var(--white); color: var(--dark); padding: 8px; border-radius: 8px; font-size: 0.8rem; border: 2px solid var(--dark); }
+        .role-card.active { background: #e0e0e0; border: 3px solid var(--kfc-red); }
+        .role-name { display: block; font-weight: bold; font-size: 0.85rem; }
 
-        /* Buttons */
+        /* Color-Coded Scoring Grid */
         .scoring-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
-        button { border: none; border-radius: 10px; padding: 15px 5px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        .btn-run { background: white; box-shadow: 0 4px #ccc; }
-        .btn-wicket { background: #ffcdd2; color: #b71c1c; grid-column: span 2; box-shadow: 0 4px #e57373; }
-        .btn-extra { background: #fff9c4; box-shadow: 0 4px #d4cc8a; }
-        .btn-undo { background: #555; color: white; grid-column: span 4; margin-top: 10px; }
+        button { border: none; border-radius: 10px; padding: 18px 5px; font-weight: bold; cursor: pointer; font-size: 1.2rem; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .btn-run { background: var(--run-green); box-shadow: 0 4px #1b5e20; }
+        .btn-wicket { background: var(--wicket-red); grid-column: span 2; box-shadow: 0 4px #8e0000; }
+        .btn-extra { background: var(--extra-gold); color: black; text-shadow: none; box-shadow: 0 4px #c49000; }
+        .btn-undo { background: #555; grid-column: span 4; margin-top: 10px; font-size: 0.9rem; padding: 10px; }
         .btn-main { background: var(--kfc-red); color: white; width: 100%; padding: 15px; margin-top: 10px; }
 
-        /* Scorecard */
+        /* Selection Overlays */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal { background: white; padding: 20px; border-radius: 15px; width: 85%; max-width: 400px; }
+        .select-btn { background: #eee; color: black; margin: 5px 0; display: block; width: 100%; padding: 12px; text-align: left; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
+        
+        /* History & Scorecard */
         .stats-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; margin-top: 10px; }
         .stats-table th, .stats-table td { border: 1px solid #ddd; padding: 4px; text-align: center; }
-        .summary-box { background: var(--gold); padding: 10px; margin-top: 5px; font-weight: bold; }
-        
-        .history-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        @media print { .no-print { display: none; } }
+        .summary-box { background: #eee; padding: 10px; border: 2px solid black; margin-top: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,7 +51,6 @@
             <button class="btn-main" onclick="showView('view-setup')">New Match</button>
             <button class="btn-main" style="background:#444" onclick="loadHistory()">Match History</button>
         </div>
-        <div id="history-preview"></div>
     </div>
 
     <div id="view-setup" class="hidden">
@@ -61,14 +58,8 @@
             <h2>Match Setup</h2>
             <input type="text" id="setup-venue" placeholder="Venue Name">
             <div class="team-setup-grid">
-                <div>
-                    <input type="text" id="team-a-name" placeholder="Team A Name">
-                    <div id="team-a-players"></div>
-                </div>
-                <div>
-                    <input type="text" id="team-b-name" placeholder="Team B Name">
-                    <div id="team-b-players"></div>
-                </div>
+                <div><input type="text" id="team-a-name" placeholder="Team A Name"><div id="team-a-players"></div></div>
+                <div><input type="text" id="team-b-name" placeholder="Team B Name"><div id="team-b-players"></div></div>
             </div>
             <button class="btn-main" onclick="initMatch()">START MATCH</button>
             <button class="btn-main" style="background:#666" onclick="showView('view-home')">Back</button>
@@ -80,22 +71,16 @@
             <div id="disp-matchup">Teams</div>
             <div class="big-score" id="disp-score">0 - 0</div>
             <div id="disp-overs">Over: 0.0 / 8</div>
-            <div id="disp-target" class="hidden" style="background:var(--kfc-red); padding:4px 12px; border-radius:20px; font-size:0.8rem;">TARGET: 0</div>
+            <div id="disp-target" class="hidden" style="color:red; font-weight:bold;">TARGET: 0</div>
 
             <div class="live-roles">
-                <div class="role-card active" id="card-s">
-                    <span>Striker</span><span class="role-name" id="name-s">---</span><span id="balls-s">0/6</span>
-                </div>
-                <div class="role-card" id="card-ns">
-                    <span>Non-Striker</span><span class="role-name" id="name-ns">---</span><span id="balls-ns">0/6</span>
-                </div>
-                <div class="role-card" id="card-bwl">
-                    <span>Bowler</span><span class="role-name" id="name-bwl">---</span><span id="balls-bwl">0/6</span>
-                </div>
+                <div class="role-card active" id="card-s"><span>Striker</span><span class="role-name" id="name-s">---</span><span id="balls-s">0/6</span></div>
+                <div class="role-card" id="card-ns"><span>Non-Striker</span><span class="role-name" id="name-ns">---</span><span id="balls-ns">0/6</span></div>
+                <div class="role-card" id="card-bwl"><span>Bowler</span><span class="role-name" id="name-bwl">---</span><span id="balls-bwl">0/6</span></div>
             </div>
         </div>
 
-        <div class="scoring-grid no-print">
+        <div class="scoring-grid">
             <button class="btn-run" onclick="handleBall(0)">0</button>
             <button class="btn-run" onclick="handleBall(1)">1</button>
             <button class="btn-run" onclick="handleBall(2)">2</button>
@@ -109,10 +94,17 @@
         </div>
     </div>
 
+    <div id="player-modal" class="overlay hidden">
+        <div class="modal">
+            <h3 id="modal-title">Select Next Player</h3>
+            <div id="modal-options"></div>
+        </div>
+    </div>
+
     <div id="view-scorecard" class="hidden">
         <div class="card" id="scorecard-container"></div>
-        <button class="btn-main no-print" onclick="syncData()">SYNC TO CLOUD</button>
-        <button class="btn-main no-print" style="background:#666" onclick="location.reload()">HOME</button>
+        <button class="btn-main" onclick="syncData()">SYNC TO CLOUD</button>
+        <button class="btn-main" style="background:#666" onclick="location.reload()">HOME</button>
     </div>
 
     <div id="view-history" class="hidden">
@@ -126,7 +118,6 @@
 
 <script>
     const GOOGLE_URL = 'https://script.google.com/macros/s/AKfycbw1wz51YxHeo1cEmht42_d8MmtzRCqZ8Y_lrPpaKIgNrgWdXNBHJ43KK47emrUtEYl0/exec';
-    
     let match = {};
     let undoStack = [];
 
@@ -140,17 +131,15 @@
     };
 
     function initMatch() {
-        const namesA = Array.from(document.querySelectorAll('.p-a')).map((i, idx) => i.value || "Player " + (idx+1));
-        const namesB = Array.from(document.querySelectorAll('.p-b')).map((i, idx) => i.value || "Player " + (idx+1));
-        
+        const namesA = Array.from(document.querySelectorAll('.p-a')).map((i, idx) => i.value || "P" + (idx+1));
+        const namesB = Array.from(document.querySelectorAll('.p-b')).map((i, idx) => i.value || "P" + (idx+1));
         match = {
             id: Date.now(), venue: document.getElementById('setup-venue').value || "TBC",
             home: document.getElementById('team-a-name').value || "Home",
             away: document.getElementById('team-b-name').value || "Away",
-            battingTeam: namesA.map(n => ({ name: n, ballsFaced: 0, runs: 0, balls: [] })),
+            battingTeam: namesA.map(n => ({ name: n, ballsFaced: 0, balls: [] })),
             bowlingTeam: namesB.map(n => ({ name: n, ballsBowled: 0, balls: [] })),
-            innings: 1, runs: 0, wickets: 0, overs: 0, balls: 0, strikerIdx: 0, nsIdx: 1, bowlerIdx: 0, nextBatIdx: 2,
-            inn1: null, target: null
+            innings: 1, runs: 0, wickets: 0, overs: 0, balls: 0, strikerIdx: 0, nsIdx: 1, bowlerIdx: 0
         };
         showView('view-scoring');
         updateUI();
@@ -170,33 +159,61 @@
     }
 
     function saveState() { undoStack.push(JSON.parse(JSON.stringify(match))); }
-    function undoLastAction() { if(undoStack.length > 0) { match = undoStack.pop(); updateUI(); } else { alert("Nothing to undo!"); } }
+    function undoLastAction() { if(undoStack.length > 0) { match = undoStack.pop(); updateUI(); } }
     function swap() { [match.strikerIdx, match.nsIdx] = [match.nsIdx, match.strikerIdx]; }
 
     function check() {
         if(match.battingTeam[match.strikerIdx].ballsFaced >= 6) {
-            alert(match.battingTeam[match.strikerIdx].name + " is done.");
-            if(match.nextBatIdx < 8) { match.strikerIdx = match.nextBatIdx; match.nextBatIdx++; }
-        }
-        if(match.balls >= 6) {
+            promptPlayerSelection('bat');
+        } else if(match.balls >= 6) {
             match.balls = 0; match.overs++; swap();
-            if(match.overs < 8) match.bowlerIdx++;
+            if(match.overs < 8) promptPlayerSelection('bowl');
         }
         if(match.overs >= 8) {
-            if(match.innings === 1) {
+            if(match.innings === 1) { 
                 match.inn1 = { score: match.runs, wkts: match.wickets, bat: JSON.parse(JSON.stringify(match.battingTeam)), bowl: JSON.parse(JSON.stringify(match.bowlingTeam)) };
-                match.target = match.runs + 1;
-                alert("Target: " + match.target);
-                startInnings2();
+                alert("Innings 1 Done. Switching...");
+                startInnings2(); 
             } else { finish(); }
         }
     }
 
+    function promptPlayerSelection(type) {
+        const modal = document.getElementById('player-modal');
+        const options = document.getElementById('modal-options');
+        const title = document.getElementById('modal-title');
+        options.innerHTML = "";
+        modal.classList.remove('hidden');
+
+        if(type === 'bat') {
+            title.innerText = "Select Next Batter";
+            match.battingTeam.forEach((p, idx) => {
+                if(idx !== match.nsIdx) {
+                    let btn = document.createElement('button');
+                    btn.className = "select-btn";
+                    btn.innerText = `${p.name} (${p.ballsFaced}/6 balls)`;
+                    btn.onclick = () => { match.strikerIdx = idx; modal.classList.add('hidden'); updateUI(); };
+                    options.appendChild(btn);
+                }
+            });
+        } else {
+            title.innerText = "Select Next Bowler";
+            match.bowlingTeam.forEach((p, idx) => {
+                let btn = document.createElement('button');
+                btn.className = "select-btn";
+                btn.innerText = `${p.name} (${p.ballsBowled}/6 balls)`;
+                btn.onclick = () => { match.bowlerIdx = idx; modal.classList.add('hidden'); updateUI(); };
+                options.appendChild(btn);
+            });
+        }
+    }
+
     function startInnings2() {
+        match.target = match.runs + 1;
         match.innings = 2; match.runs = 0; match.wickets = 0; match.overs = 0; match.balls = 0;
-        match.strikerIdx = 0; match.nsIdx = 1; match.bowlerIdx = 0; match.nextBatIdx = 2;
+        match.strikerIdx = 0; match.nsIdx = 1; match.bowlerIdx = 0;
         let temp = match.battingTeam; match.battingTeam = match.bowlingTeam; match.bowlingTeam = temp;
-        match.battingTeam.forEach(p => { p.ballsFaced = 0; p.balls = []; p.runs = 0; });
+        match.battingTeam.forEach(p => { p.ballsFaced = 0; p.balls = []; });
         match.bowlingTeam.forEach(p => { p.ballsBowled = 0; p.balls = []; });
     }
 
@@ -204,17 +221,13 @@
         match.inn2 = { score: match.runs, wkts: match.wickets, bat: JSON.parse(JSON.stringify(match.battingTeam)), bowl: JSON.parse(JSON.stringify(match.bowlingTeam)) };
         showView('view-scorecard');
         renderScorecard();
-        let h = JSON.parse(localStorage.getItem('cricket_history') || '[]');
-        h.unshift(match);
-        localStorage.setItem('cricket_history', JSON.stringify(h));
     }
 
     function renderScorecard() {
         const d = new Date().toISOString().split('T')[0];
-        let h = `<div style="font-size:0.8rem">Date: ${d} | Venue: ${match.venue}</div>`;
-        h += `<h2>${match.home} vs ${match.away}</h2>`;
-        h += `<h3>${match.home} Innings</h3>` + table(match.inn1.bat) + `<div class="summary-box">Score: ${match.inn1.score} - (${match.inn1.wkts}*2) = ${match.inn1.score-(match.inn1.wkts*2)}</div>`;
-        h += `<h3>${match.away} Innings</h3>` + table(match.inn2.bat) + `<div class="summary-box">Score: ${match.inn2.score} - (${match.inn2.wkts}*2) = ${match.inn2.score-(match.inn2.wkts*2)}</div>`;
+        let h = `<h3>${d} | ${match.venue}</h3><h2>${match.home} vs ${match.away}</h2>`;
+        h += `<h4>${match.home} Innings</h4>` + table(match.inn1.bat) + `<div class="summary-box">Final: ${match.inn1.score - (match.inn1.wkts*2)}</div>`;
+        h += `<h4>${match.away} Innings</h4>` + table(match.inn2.bat) + `<div class="summary-box">Final: ${match.inn2.score - (match.inn2.wkts*2)}</div>`;
         document.getElementById('scorecard-container').innerHTML = h;
     }
 
@@ -231,17 +244,6 @@
         return t + `</table>`;
     }
 
-    function loadHistory() {
-        const h = JSON.parse(localStorage.getItem('cricket_history') || '[]');
-        const list = document.getElementById('history-list');
-        if(!h || h.length === 0) {
-            list.innerHTML = "<p>No previous matches found. Start a new match to see history!</p>";
-        } else {
-            list.innerHTML = h.map(m => `<div class="history-item"><div><strong>${m.home} vs ${m.away}</strong><br><small>${m.venue}</small></div><span>${m.inn1.score-m.inn1.wkts*2} / ${m.inn2.score-m.inn2.wkts*2}</span></div>`).join('');
-        }
-        showView('view-history');
-    }
-
     function updateUI() {
         document.getElementById('disp-matchup').innerText = `${match.home} vs ${match.away}`;
         document.getElementById('disp-score').innerText = `${match.runs} - ${match.wickets}`;
@@ -252,10 +254,17 @@
         document.getElementById('balls-ns').innerText = match.battingTeam[match.nsIdx].ballsFaced + "/6";
         document.getElementById('name-bwl').innerText = match.bowlingTeam[match.bowlerIdx].name;
         document.getElementById('balls-bwl').innerText = match.bowlingTeam[match.bowlerIdx].ballsBowled + "/6";
+        if(match.target) { document.getElementById('disp-target').innerText = "TARGET: " + match.target; document.getElementById('disp-target').classList.remove('hidden'); }
     }
 
     function showView(id) { document.querySelectorAll('.container > div').forEach(v => v.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
     function syncData() { fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(match) }).then(() => alert("Synced!")); }
+    function loadHistory() {
+        const h = JSON.parse(localStorage.getItem('cricket_history') || '[]');
+        const list = document.getElementById('history-list');
+        list.innerHTML = h.length ? h.map(m => `<div class="history-item"><strong>${m.home} vs ${m.away}</strong><span>${m.venue}</span></div>`).join('') : "<p>No History</p>";
+        showView('view-history');
+    }
 </script>
 </body>
 </html>
