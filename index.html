@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mini Cricket Scorer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body { font-family: sans-serif; background: #f0f0f0; margin: 0; padding: 10px; text-align: center; }
+        .scoreboard { background: #333; color: white; padding: 20px; border-radius: 10px; margin-bottom: 10px; }
+        .score { font-size: 3em; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        button { 
+            padding: 20px 10px; font-size: 1.5em; border: none; border-radius: 8px; 
+            background: white; box-shadow: 0 4px #ccc; cursor: pointer;
+        }
+        button:active { transform: translateY(4px); box-shadow: none; }
+        .btn-run { background: #e1f5fe; }
+        .btn-wicket { background: #ffcdd2; grid-column: span 2; color: #b71c1c; font-weight: bold; }
+        .btn-extra { background: #fff9c4; }
+        .stats { margin-top: 15px; background: white; padding: 10px; border-radius: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="scoreboard">
+        <div id="team-names">Home vs Away</div>
+        <div class="score" id="main-score">0 - 0</div>
+        <div id="over-info">Over: 0.0</div>
+    </div>
+
+    <div class="stats">
+        <div><strong>Striker:</strong> <span id="s-name">Player 1</span> (<span id="s-balls">0</span>b)</div>
+        <div><strong>Non-Striker:</strong> <span id="ns-name">Player 2</span> (<span id="ns-balls">0</span>b)</div>
+    </div>
+
+    <br>
+
+    <div class="grid">
+        <button class="btn-run" onclick="addRun(0)">0</button>
+        <button class="btn-run" onclick="addRun(1)">1</button>
+        <button class="btn-run" onclick="addRun(2)">2</button>
+        <button class="btn-run" onclick="addRun(3)">3</button>
+        <button class="btn-run" onclick="addRun(4)">4</button>
+        <button class="btn-run" onclick="addRun(6)">6</button>
+        <button class="btn-extra" onclick="addExtra('WD')">WD</button>
+        <button class="btn-extra" onclick="addExtra('NB')">NB</button>
+        <button class="btn-wicket" onclick="addWicket()">WICKET (-2)</button>
+    </div>
+
+    <script>
+        // Simple logic for offline storage
+        let score = 0;
+        let wickets = 0;
+        let ballsInOver = 0;
+        let totalOvers = 0;
+        let strikerBalls = 0;
+
+        function updateDisplay() {
+            document.getElementById('main-score').innerText = `${score} - ${wickets}`;
+            document.getElementById('over-info').innerText = `Over: ${totalOvers}.${ballsInOver}`;
+            document.getElementById('s-balls').innerText = strikerBalls;
+            
+            if (strikerBalls >= 6) {
+                alert("Batter has faced 6 balls! Time to rotate.");
+                strikerBalls = 0; 
+                // Logic to bring in next batter would go here
+            }
+        }
+
+        function addRun(runs) {
+            score += runs;
+            recordBall(runs, false);
+            if (runs % 2 !== 0) swapBatters();
+            updateDisplay();
+        }
+
+        function addWicket() {
+            score -= 2;
+            wickets += 1;
+            recordBall(0, true);
+            updateDisplay();
+        }
+
+        function addExtra(type) {
+            score += 1; // Wide/NB adds 1
+            // In your rules, extras still count as a ball in the over
+            recordBall(0, false); 
+            updateDisplay();
+        }
+
+        function recordBall(runs, isWicket) {
+            ballsInOver++;
+            strikerBalls++;
+            if (ballsInOver > 5) {
+                ballsInOver = 0;
+                totalOvers++;
+                swapBatters(); // Swap at end of over
+            }
+        }
+
+        function swapBatters() {
+            let s = document.getElementById('s-name').innerText;
+            let ns = document.getElementById('ns-name').innerText;
+            document.getElementById('s-name').innerText = ns;
+            document.getElementById('ns-name').innerText = s;
+            // Note: In a full app, we'd swap the ball counts too
+        }
+    </script>
+</body>
+</html>
